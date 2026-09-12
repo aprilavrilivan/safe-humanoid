@@ -1,0 +1,5 @@
+# Deterministic push-recovery evaluation scenario.
+#
+# This overlay will define push timing, direction, magnitude, and duration. Training may use
+# randomized pushes, but reported evaluations should replay the same disturbance schedule.
+

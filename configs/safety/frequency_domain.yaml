@@ -1,0 +1,5 @@
+# Frequency-domain safety-signal configuration.
+#
+# This file will define sampling rate, window length, spectral bands, normalization, and
+# causal-filter settings. Physics-rate torque and policy-rate action signals remain distinct.
+

@@ -1,0 +1,5 @@
+# Python build and development-tool configuration placeholder for the Isaac Lab extension.
+#
+# Runtime dependencies will be kept minimal. Isaac Sim and Isaac Lab versions belong in the
+# stack manifest/bootstrap flow so this extension does not accidentally upgrade them.
+

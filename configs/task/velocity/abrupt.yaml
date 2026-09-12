@@ -1,0 +1,5 @@
+# Deterministic abrupt-command evaluation scenario.
+#
+# This overlay will define an explicit time-indexed command sequence shared by every method,
+# allowing recovery transients and high-frequency control behavior to be compared fairly.
+

@@ -1,0 +1,5 @@
+# Aggressive velocity-tracking evaluation scenario.
+#
+# This overlay will widen command magnitudes and transition rates in controlled stages to
+# increase actuator load and expose safety-limit violations without changing the core task.
+

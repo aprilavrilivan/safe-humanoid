@@ -1,0 +1,5 @@
+# Time-domain safety-signal configuration.
+#
+# Planned terms include torque-speed envelope violation, torque RMS, mechanical power,
+# joint/action rates, contact feasibility, balance, and their aggregation thresholds.
+

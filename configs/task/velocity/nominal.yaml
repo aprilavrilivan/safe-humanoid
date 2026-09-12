@@ -1,0 +1,5 @@
+# Nominal velocity-tracking evaluation scenario.
+#
+# This overlay will define ordinary linear/yaw command ranges with no deliberate external
+# disturbance. It is the reference condition for task performance and safety telemetry.
+

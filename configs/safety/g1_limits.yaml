@@ -1,0 +1,5 @@
+# Unitree G1 safety-limit specification.
+#
+# This file will hold joint-group mappings and sourced actuator/contact limits. Unknown
+# hardware values must remain explicitly marked as uncalibrated rather than guessed.
+

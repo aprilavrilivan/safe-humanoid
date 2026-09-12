@@ -1,0 +1,6 @@
+# Reproducible simulator-stack manifest.
+#
+# This file will pin the mutually compatible Isaac Lab, Isaac Sim, Python, PyTorch, CUDA,
+# and RL-library versions used by the Linux GPU environment. It is separate from experiment
+# configuration so infrastructure changes cannot silently alter a scientific comparison.
+
