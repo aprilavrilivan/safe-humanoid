@@ -1,6 +1,40 @@
-# Reproducible simulator-stack manifest.
+# Reproducible software-stack manifest for the first G1 baseline.
 #
-# This file will pin the mutually compatible Isaac Lab, Isaac Sim, Python, PyTorch, CUDA,
-# and RL-library versions used by the Linux GPU environment. It is separate from experiment
-# configuration so infrastructure changes cannot silently alter a scientific comparison.
+# Keep this file as a flat mapping: bootstrap_linux.sh and doctor.py must be able to read it
+# before PyYAML (or any project dependency) is installed. Version changes should be made here,
+# not copied into setup scripts.
 
+schema_version: 1
+
+# Supported host for the pinned Isaac Sim 5.1 workflow.
+supported_linux_distribution: "ubuntu"
+supported_linux_version: "22.04"
+supported_architecture: "x86_64"
+minimum_glibc: "2.35"
+minimum_ram_gb: 32
+minimum_vram_gb: 16
+recommended_free_disk_gb: 50
+recommended_nvidia_driver: "580.65.06"
+
+# Project-local locations. The bootstrap script refuses parent-directory traversal here.
+virtualenv_directory: ".venv"
+isaac_lab_directory: ".deps/IsaacLab"
+
+# Python, Isaac Sim, and CUDA-enabled PyTorch pins from the Isaac Lab v2.3.2 setup.
+python_version: "3.11"
+isaac_sim_version: "5.1.0"
+torch_version: "2.7.0"
+torchvision_version: "0.22.0"
+cuda_runtime: "12.8"
+cuda_wheel_tag: "cu128"
+nvidia_python_index: "https://pypi.nvidia.com"
+torch_python_index: "https://download.pytorch.org/whl/cu128"
+
+# Pin both the human-readable tag and the exact commit resolved from the official repository.
+isaac_lab_repository: "https://github.com/isaac-sim/IsaacLab.git"
+isaac_lab_ref: "v2.3.2"
+isaac_lab_commit: "37ddf626871758333d6ed89cf64ad702aef127d0"
+
+# The first baseline uses Isaac Lab's built-in RSL-RL integration and official G1 task.
+rl_library: "rsl_rl"
+official_task_id: "Isaac-Velocity-Flat-G1-v0"
