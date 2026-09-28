@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "velocity_baseline_pilot",
+  "purpose": "GPU integration pilot only; not a trained or safety-qualified baseline",
+  "training": {
+    "scenario": "nominal",
+    "num_envs": 64,
+    "max_iterations": 10,
+    "seed": 0
+  },
+  "evaluation": {
+    "scenarios": ["nominal", "aggressive", "abrupt", "push_recovery"],
+    "num_envs": 2,
+    "episodes_per_env": 3,
+    "seed": 0,
+    "physics_trace": true
+  },
+  "readiness": {
+    "minimum_exposed_episodes_per_scenario": 1
+  }
+}

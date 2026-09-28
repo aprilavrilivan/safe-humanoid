@@ -37,4 +37,5 @@ isaac_lab_commit: "37ddf626871758333d6ed89cf64ad702aef127d0"
 
 # The first baseline uses Isaac Lab's built-in RSL-RL integration and official G1 task.
 rl_library: "rsl_rl"
+wandb_version: "0.22.3"
 official_task_id: "Isaac-Velocity-Flat-G1-v0"

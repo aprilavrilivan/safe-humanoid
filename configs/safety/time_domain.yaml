@@ -1,5 +1,6 @@
-# Time-domain safety-signal configuration.
-#
-# Planned terms include torque-speed envelope violation, torque RMS, mechanical power,
-# joint/action rates, contact feasibility, balance, and their aggregation thresholds.
-
+{
+  "schema_version": 1,
+  "sample_rate_hz": 200.0,
+  "torque_rms_window_s": 0.5,
+  "notes": "Physics-rate pilot analysis for approximate implicit-PD actuator torque and PhysX joint velocity. The RMS window is an analysis choice, not a hardware limit."
+}

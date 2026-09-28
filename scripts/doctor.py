@@ -9,6 +9,7 @@ inspect a fresh Linux machine before installation, and validate the completed GP
 from __future__ import annotations
 
 import argparse
+import ctypes
 import importlib.metadata
 import json
 import os
@@ -106,6 +107,7 @@ def parse_flat_yaml(path: Path) -> dict[str, Any]:
         "isaac_lab_ref",
         "isaac_lab_commit",
         "rl_library",
+        "wandb_version",
         "official_task_id",
     }
     missing = sorted(required - config.keys())
@@ -334,6 +336,33 @@ class Doctor:
                 purpose,
             )
 
+    def check_native_libraries(self) -> None:
+        """Catch minimal Linux images that import Python but hang during Kit startup."""
+
+        libraries = {
+            "libvulkan.so.1": "libvulkan1",
+            "libEGL.so.1": "libegl1",
+            "libXt.so.6": "libxt6",
+            "libGLU.so.1": "libglu1-mesa",
+        }
+        for soname, ubuntu_package in libraries.items():
+            if platform.system() != "Linux":
+                self.add("libraries", soname, "SKIP", "not Linux", "loadable")
+                continue
+            try:
+                ctypes.CDLL(soname)
+            except OSError as exc:
+                self.add(
+                    "libraries",
+                    soname,
+                    "FAIL",
+                    "not loadable",
+                    "loadable",
+                    f"Ubuntu package: {ubuntu_package}; {exc}",
+                )
+            else:
+                self.add("libraries", soname, "PASS", "loadable", "loadable")
+
     def check_gpu(self) -> None:
         nvidia_smi = shutil.which("nvidia-smi")
         if not nvidia_smi:
@@ -424,6 +453,7 @@ class Doctor:
             "Isaac Sim": (("isaacsim",), str(self.config["isaac_sim_version"])),
             "PyTorch": (("torch",), str(self.config["torch_version"])),
             "torchvision": (("torchvision",), str(self.config["torchvision_version"])),
+            "Weights & Biases": (("wandb",), str(self.config["wandb_version"])),
         }
         for display_name, (aliases, expected) in expected_packages.items():
             actual = package_version(*aliases)
@@ -533,35 +563,46 @@ class Doctor:
             )
             return
 
-        task_probe_code = "\n".join(
-            (
-                "from isaaclab.app import AppLauncher",
-                "launcher = AppLauncher(headless=True)",
-                "simulation_app = launcher.app",
-                "import gymnasium as gym",
-                "import isaaclab_tasks",
-                f"print('registered' if {task_id!r} in gym.registry else 'missing')",
-                "simulation_app.close()",
-            )
+        # Launching Kit solely to inspect Gymnasium's registry can crash during
+        # immediate shutdown on headless hosts. The one-step baseline smoke
+        # checks the official spec and config contract, then exercises a real
+        # physics step before closing Kit. Require its completion marker too:
+        # Kit can otherwise exit with code 0 before Python finishes the probe.
+        task_probe = run_command(
+            [
+                sys.executable,
+                "-u",
+                str(REPO_ROOT / "scripts" / "smoke_env.py"),
+                "--headless",
+                "--reference-task",
+                task_id,
+                "--num-envs",
+                "1",
+                "--steps",
+                "1",
+            ],
+            timeout=180,
         )
-        task_probe = run_command([sys.executable, "-c", task_probe_code], timeout=180)
         task_output = task_probe.stdout.strip().splitlines()
         registered = task_probe.returncode == 0 and any(
-            line.strip() == "registered" for line in task_output
+            line.strip() == "[PASS] completed 1 zero-action steps with a valid tensor contract"
+            for line in task_output
         )
-        detail = task_probe.stderr.strip().splitlines()[-1] if task_probe.stderr.strip() else ""
+        detail_lines = task_probe.stderr.strip().splitlines() or task_output
+        detail = detail_lines[-1] if detail_lines and not registered else ""
         self.add(
             "task",
             task_id,
             "PASS" if registered else "FAIL",
-            "registered" if registered else "missing or import failed",
-            "registered in Gymnasium",
+            "registered and stepped" if registered else "probe did not complete",
+            "registered in Gymnasium and one physics step succeeds",
             detail,
         )
 
     def run(self) -> list[CheckResult]:
         self.check_host()
         self.check_tools()
+        self.check_native_libraries()
         self.check_gpu()
         if self.mode == "full":
             self.check_python_environment()
@@ -635,7 +676,7 @@ def build_parser() -> argparse.ArgumentParser:
         default="auto",
         help=(
             "preflight checks the host; full also validates installed packages; "
-            "add --probe-task to launch the task-registration probe"
+            "add --probe-task to launch a one-step task probe"
         ),
     )
     parser.add_argument("--json", type=Path, help="optional path for a machine-readable report")
@@ -643,7 +684,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--probe-task",
         action="store_true",
         help=(
-            "start Isaac Sim headlessly and verify the official Gym task registration "
+            "start Isaac Sim headlessly and verify official registration plus one physics step "
             "(full mode only)"
         ),
     )

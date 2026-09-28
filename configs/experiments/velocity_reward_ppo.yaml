@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "notes": "Pilot reward coefficients and normalization references, not calibrated Unitree G1 hardware limits. Use identical coefficients across the four training scenarios and report clean task reward and raw safety metrics separately.",
+  "profiles": {
+    "clean": null,
+    "time": {
+      "weight": -0.1,
+      "sample_rate_hz": 200.0,
+      "window_samples": 100,
+      "torque_reference_nm": 50.0
+    },
+    "frequency": {
+      "weight": -0.1,
+      "sample_rate_hz": 200.0,
+      "window_samples": 128,
+      "hop_samples": 64,
+      "band_hz": [25.0, 100.0],
+      "torque_reference_nm": 50.0,
+      "joint_speed_reference_rad_s": 10.0
+    }
+  }
+}

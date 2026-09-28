@@ -1,5 +1,12 @@
-# Frequency-domain safety-signal configuration.
-#
-# This file will define sampling rate, window length, spectral bands, normalization, and
-# causal-filter settings. Physics-rate torque and policy-rate action signals remain distinct.
-
+{
+  "schema_version": 1,
+  "sample_rate_hz": 200.0,
+  "window_samples": 128,
+  "hop_samples": 64,
+  "bands_hz": {
+    "low_0_10": [0.0, 10.0],
+    "mid_10_25": [10.0, 25.0],
+    "high_25_100": [25.0, 100.0]
+  },
+  "notes": "One-sided Hann-window Welch band power for Isaac Lab's approximate implicit-PD actuator torque (Nm^2) and PhysX joint velocity ((rad/s)^2). Bands are descriptive, not safety thresholds."
+}

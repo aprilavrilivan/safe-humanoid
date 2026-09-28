@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "name": "squat_stand",
+  "task_id": "SafeHumanoid-Tracking-SquatStand-G1-v0",
+  "reference_checks": {
+    "min_duration_s": 2.0,
+    "min_root_height_excursion_m": 0.15,
+    "min_leg_speed_rad_s": 0.0
+  },
+  "tracking_reward": {
+    "joint_pos_std_rad": 0.35,
+    "joint_vel_std_rad_s": 2.0,
+    "root_height_std_m": 0.12,
+    "root_orientation_std_rad": 0.5
+  }
+}

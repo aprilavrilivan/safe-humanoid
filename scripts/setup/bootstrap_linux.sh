@@ -123,10 +123,12 @@ ISAACLAB_REPOSITORY="$(require_config isaac_lab_repository)"
 ISAACLAB_REF="$(require_config isaac_lab_ref)"
 ISAACLAB_COMMIT="$(require_config isaac_lab_commit)"
 RL_LIBRARY="$(require_config rl_library)"
+WANDB_VERSION="$(require_config wandb_version)"
 OFFICIAL_TASK_ID="$(require_config official_task_id)"
 VENV_DIR="$(resolve_project_path "$(require_config virtualenv_directory)")"
 ISAACLAB_DIR="$(resolve_project_path "$(require_config isaac_lab_directory)")"
 VENV_PYTHON="${VENV_DIR}/bin/python"
+PROJECT_EXTENSION_DIR="${REPO_ROOT}/source/safe_humanoid"
 
 [[ "${SCHEMA_VERSION}" == "1" ]] || die "Unsupported stack-manifest schema: ${SCHEMA_VERSION}"
 
@@ -140,7 +142,9 @@ if [[ "${DRY_RUN}" -eq 1 ]]; then
 [DRY-RUN] PyTorch:          ${TORCH_VERSION} / torchvision ${TORCHVISION_VERSION}
 [DRY-RUN] Isaac Lab:        ${ISAACLAB_REF} (${ISAACLAB_COMMIT})
 [DRY-RUN] Isaac Lab path:   ${ISAACLAB_DIR}
+[DRY-RUN] Project package:  ${PROJECT_EXTENSION_DIR} (editable)
 [DRY-RUN] RL library:       ${RL_LIBRARY}
+[DRY-RUN] W&B SDK:          ${WANDB_VERSION}
 [DRY-RUN] Smoke-test task:  ${OFFICIAL_TASK_ID}
 [DRY-RUN] No files, packages, repositories, or system settings were changed.
 EOF
@@ -234,11 +238,28 @@ ACTUAL_ISAACLAB_COMMIT="$(git -C "${ISAACLAB_DIR}" rev-parse HEAD)"
         "This script will not overwrite an existing checkout."
 
 info "Installing Isaac Lab extensions and ${RL_LIBRARY}."
+# Isaac Lab 2.3.2 pins flatdict 4.0.1, whose legacy setup.py imports
+# pkg_resources without declaring it as a build dependency. Newer setuptools
+# releases no longer provide that module, so build this one dependency with a
+# compatible setuptools in the project environment before the upstream helper
+# installs the remaining extensions.
+uv pip install --python "${VENV_PYTHON}" "setuptools<81" wheel
+uv pip install --python "${VENV_PYTHON}" --no-build-isolation "flatdict==4.0.1"
 # Activating the environment makes the upstream helper use this project-local Python. Build
 # tools were checked above, so its installation path will not need to invoke apt or sudo.
 # shellcheck disable=SC1091
 source "${VENV_DIR}/bin/activate"
 "${ISAACLAB_DIR}/isaaclab.sh" --install "${RL_LIBRARY}"
+
+info "Installing the safe-humanoid extension in editable mode."
+uv pip install --python "${VENV_PYTHON}" --editable "${PROJECT_EXTENSION_DIR}"
+
+info "Installing the pinned Weights & Biases SDK (authentication is not changed)."
+uv pip install --python "${VENV_PYTHON}" "wandb==${WANDB_VERSION}"
+
+info "Verifying that the safe_humanoid Python package is importable."
+"${VENV_PYTHON}" -c \
+    "import safe_humanoid; print(f'[PASS] safe_humanoid {safe_humanoid.__version__}')"
 
 info "Running the full installed-stack diagnostic."
 "${VENV_PYTHON}" "${REPO_ROOT}/scripts/doctor.py" \
@@ -255,8 +276,11 @@ Activate it with:
 Isaac Lab checkout:
   ${ISAACLAB_DIR}
 
-Next, launch the official task with Isaac Lab's zero/random-agent or RSL-RL scripts:
+First verify the official task registration:
   ${OFFICIAL_TASK_ID}
+
+Then run the project environment contract smoke test:
+  python scripts/smoke_env.py --headless
 
 The first Isaac Sim launch requires your explicit acceptance of NVIDIA's EULA.
 EOF

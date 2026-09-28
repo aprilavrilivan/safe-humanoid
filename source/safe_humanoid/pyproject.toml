@@ -1,5 +1,19 @@
-# Python build and development-tool configuration placeholder for the Isaac Lab extension.
-#
-# Runtime dependencies will be kept minimal. Isaac Sim and Isaac Lab versions belong in the
-# stack manifest/bootstrap flow so this extension does not accidentally upgrade them.
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
 
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.pyright]
+include = ["safe_humanoid"]
+exclude = ["**/__pycache__"]
+pythonVersion = "3.11"
+pythonPlatform = "Linux"
+typeCheckingMode = "basic"
+reportMissingImports = "none"
+reportMissingModuleSource = "none"

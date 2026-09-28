@@ -1,5 +1,21 @@
-# Isaac Sim extension metadata placeholder.
-#
-# The runnable external project will declare its extension package, dependencies, version,
-# and Python module entry point here after the simulator stack has been pinned.
+[package]
+version = "0.1.0"
+category = "isaaclab"
+title = "Safe Humanoid"
+author = "safe-humanoid contributors"
+maintainer = "safe-humanoid contributors"
+description = "External Isaac Lab tasks for deployment-safe Unitree G1 control research."
+repository = "https://github.com/aprilavrilivan/safe-humanoid"
+keywords = ["isaaclab", "humanoid", "robotics", "safety", "unitree-g1"]
 
+[dependencies]
+"isaaclab" = {}
+"isaaclab_assets" = {}
+"isaaclab_rl" = {}
+"isaaclab_tasks" = {}
+
+[[python.module]]
+name = "safe_humanoid"
+
+[isaaclab_settings]
+# System packages and NVIDIA drivers remain explicit host-administration steps.

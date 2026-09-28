@@ -1,5 +1,8 @@
-# Unitree G1 safety-limit specification.
-#
-# This file will hold joint-group mappings and sourced actuator/contact limits. Unknown
-# hardware values must remain explicitly marked as uncalibrated rather than guessed.
-
+{
+  "schema_version": 1,
+  "robot_asset": "Isaac Lab v2.3.2 G1_MINIMAL_CFG",
+  "calibration_status": "uncalibrated",
+  "joint_torque_abs_nm": {},
+  "joint_speed_abs_rad_s": {},
+  "notes": "No per-joint continuous hardware limits have been verified for this exact G1 asset. Isaac Lab actuator effort caps, Unitree URDF values, and SDK software guards are not interchangeable hardware safety ratings."
+}

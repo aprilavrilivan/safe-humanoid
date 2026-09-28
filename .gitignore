@@ -2,6 +2,7 @@
 .venv/
 __pycache__/
 *.py[cod]
+*.egg-info/
 .pytest_cache/
 .ruff_cache/
 
@@ -11,9 +12,12 @@ __pycache__/
 # Generated training and evaluation artifacts.
 logs/
 outputs/
+wandb/
 reports/generated/
+
+# Retargeted reference motions may be large or license-restricted.
+data/motions/
 
 # Editor and operating-system files.
 .DS_Store
 .vscode/
-
