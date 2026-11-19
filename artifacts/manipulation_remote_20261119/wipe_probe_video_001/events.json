@@ -1,0 +1,562 @@
+[
+  {
+    "policy_step": 1,
+    "reward": 0.028229898032049592,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 2,
+    "reward": 0.028692435175382856,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 3,
+    "reward": 0.029207195025784748,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 4,
+    "reward": 0.02973935876079172,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 5,
+    "reward": 0.030280897908197026,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 6,
+    "reward": 0.03082953842188563,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 7,
+    "reward": 0.03138434350230013,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 8,
+    "reward": 0.031944748525001336,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 9,
+    "reward": 0.03251032902658645,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 10,
+    "reward": 0.033080730555443444,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 11,
+    "reward": 0.03365563934117569,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 12,
+    "reward": 0.03423477047005293,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 13,
+    "reward": 0.03481785012012478,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 14,
+    "reward": 0.0354046057090228,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 15,
+    "reward": 0.03599476074698256,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 16,
+    "reward": 0.036588030871308866,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 17,
+    "reward": 0.03718412102572503,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 18,
+    "reward": 0.037782723470456414,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 19,
+    "reward": 0.03838351639012949,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 20,
+    "reward": 0.038986162932347725,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 21,
+    "reward": 0.03959031055669979,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 22,
+    "reward": 0.04019559060884715,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 23,
+    "reward": 0.04080161806014954,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 24,
+    "reward": 0.041407991372124524,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 25,
+    "reward": 0.042014292458600305,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 26,
+    "reward": 0.042620086728120746,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 27,
+    "reward": 0.04322492319601485,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 28,
+    "reward": 0.04382833466036518,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 29,
+    "reward": 0.04442983793943657,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 30,
+    "reward": 0.04502893485352445,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 31,
+    "reward": 0.045625114545176176,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 32,
+    "reward": 0.046217846464026616,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 33,
+    "reward": 0.0468065809264057,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 34,
+    "reward": 0.04739075478853358,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 35,
+    "reward": 0.047969792665624934,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 36,
+    "reward": 0.04854310757529405,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 37,
+    "reward": 0.049110101602145226,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 38,
+    "reward": 0.04967016666041764,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 39,
+    "reward": 0.050222685366790205,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 40,
+    "reward": 0.05076703202324265,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 41,
+    "reward": 0.051302573707592176,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 42,
+    "reward": 0.05182867146894787,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 43,
+    "reward": 0.052344681625168574,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 44,
+    "reward": 0.05284995715917975,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 45,
+    "reward": 0.053343849210623795,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 46,
+    "reward": 0.05382570865881011,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 47,
+    "reward": 0.05429488779227817,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 48,
+    "reward": 0.054750742059553006,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 49,
+    "reward": 0.05519263189483209,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 50,
+    "reward": 0.05561992461143789,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 51,
+    "reward": 0.0560319963549166,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 52,
+    "reward": 0.056428234106672547,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 53,
+    "reward": 0.056808037728039336,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 54,
+    "reward": 0.05717082203369169,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 55,
+    "reward": 0.057516018882364975,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 56,
+    "reward": 0.05784307927194799,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 57,
+    "reward": 0.0581514754252151,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 58,
+    "reward": 0.0584407028517607,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 59,
+    "reward": 0.05871028237113441,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 60,
+    "reward": 0.05895977868882897,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 61,
+    "reward": 0.05918880881467311,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 62,
+    "reward": 0.059396978666094516,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 63,
+    "reward": 0.059583925816899676,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 64,
+    "reward": 0.05974932296268933,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 65,
+    "reward": 0.05989287891084581,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 66,
+    "reward": 0.06001433975136292,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 67,
+    "reward": 0.06011348993464702,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 68,
+    "reward": 0.060190153208076975,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 69,
+    "reward": 0.06024419339147596,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 70,
+    "reward": 0.06082751887424398,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 71,
+    "reward": 0.07494732647051291,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 72,
+    "reward": 0.07501751896024024,
+    "done": false,
+    "success": false,
+    "wiped_markers": 0
+  },
+  {
+    "policy_step": 73,
+    "reward": 1.7129977865184942,
+    "done": false,
+    "success": false,
+    "wiped_markers": 1
+  },
+  {
+    "policy_step": 74,
+    "reward": 1.7125404661675778,
+    "done": false,
+    "success": false,
+    "wiped_markers": 2
+  },
+  {
+    "policy_step": 75,
+    "reward": 1.7123762803512375,
+    "done": false,
+    "success": false,
+    "wiped_markers": 3
+  },
+  {
+    "policy_step": 76,
+    "reward": 1.7124011543714155,
+    "done": false,
+    "success": false,
+    "wiped_markers": 4
+  },
+  {
+    "policy_step": 77,
+    "reward": 1.7125928107256672,
+    "done": false,
+    "success": false,
+    "wiped_markers": 5
+  },
+  {
+    "policy_step": 78,
+    "reward": 0.07492662040683633,
+    "done": false,
+    "success": false,
+    "wiped_markers": 5
+  },
+  {
+    "policy_step": 79,
+    "reward": 1.7140428084958794,
+    "done": false,
+    "success": false,
+    "wiped_markers": 6
+  },
+  {
+    "policy_step": 80,
+    "reward": 1.7143792964884454,
+    "done": false,
+    "success": false,
+    "wiped_markers": 7
+  }
+]

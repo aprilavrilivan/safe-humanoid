@@ -1,10 +1,12 @@
 """Portable checks for the new simulator-independent inspection contracts."""
 
 import json
+import os
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "source" / "safe_humanoid"))
@@ -14,7 +16,7 @@ from safe_humanoid.manipulation.automate_assets import inspect_assembly, select_
 from safe_humanoid.manipulation.catalog import TASKS
 from safe_humanoid.manipulation.trace import PhysicsTrace
 from wipe_smoke import StepProxy
-from isaac_smoke import attach_physics_trace
+from isaac_smoke import attach_physics_trace, configure_automate_data_cache, configure_factory_asset_cache
 
 
 class ManipulationContractTests(unittest.TestCase):
@@ -122,6 +124,36 @@ class ManipulationContractTests(unittest.TestCase):
             chosen = select_diverse(root)
             self.assertEqual(len({item["assembly_id"] for item in chosen}), 3)
             self.assertTrue(all(item["parts"]["socket"]["faces"] == 1 for item in chosen))
+
+    def test_local_asset_caches_update_upstream_config_shapes(self):
+        original_cwd = Path.cwd()
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                (root / "00015").mkdir()
+                (root / "plug_grasps.json").write_text("{}")
+                (root / "disassembly_dist.json").write_text("{}")
+                (root / "00015/disassemble_traj.json").write_text("[]")
+                auto_task = SimpleNamespace()
+                auto_cfg = SimpleNamespace(task_name="insertion", tasks={"insertion": auto_task})
+                configure_automate_data_cache(auto_cfg, "00015", root)
+                self.assertEqual(Path.cwd(), (root / "runtime/00015").resolve())
+                self.assertTrue(Path(auto_task.disassembly_path_json).is_file())
+
+                factory_root = root / "factory"
+                factory_root.mkdir()
+                for name in ("factory_bolt_m16.usd", "factory_nut_m16.usd"):
+                    (factory_root / name).write_bytes(b"usd")
+                factory_task = SimpleNamespace(
+                    fixed_asset=SimpleNamespace(spawn=SimpleNamespace(usd_path="remote-bolt")),
+                    held_asset=SimpleNamespace(spawn=SimpleNamespace(usd_path="remote-nut")),
+                )
+                factory_cfg = SimpleNamespace(task=factory_task)
+                configure_factory_asset_cache(factory_cfg, "nut_threading", factory_root)
+                self.assertEqual(Path(factory_task.fixed_asset.spawn.usd_path).name, "factory_bolt_m16.usd")
+                self.assertEqual(Path(factory_task.held_asset.spawn.usd_path).name, "factory_nut_m16.usd")
+        finally:
+            os.chdir(original_cwd)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task": "Wipe",
+  "simulator": "mujoco",
+  "physics_dt_s": 0.002,
+  "physics_frequency_hz": 500.0,
+  "joint_names": [
+    "robot0_joint1",
+    "robot0_joint2",
+    "robot0_joint3",
+    "robot0_joint4",
+    "robot0_joint5",
+    "robot0_joint6",
+    "robot0_joint7"
+  ],
+  "signals": {
+    "controller_torque": "MuJoCo actuator input (data.ctrl); units depend on actuator gear",
+    "actuator_torque": "MuJoCo data.qfrc_actuator; actual simulated generalized actuator force",
+    "contact_wrench": "wrist force/torque sensors, not isolated contact",
+    "contact_force": "tool-table normal contact load in N from MuJoCo contacts"
+  },
+  "note": "Every row is a physics step, not a policy transition; null means unavailable."
+}

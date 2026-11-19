@@ -7,36 +7,58 @@ policy-loop physics tick. It never labels a command as measured motor torque.
 """
 
 import argparse
+import importlib.util
 import json
+import os
+import shutil
 import sys
 import traceback
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "source" / "safe_humanoid"))
-from safe_humanoid.manipulation.catalog import TASKS  # noqa: E402
-from safe_humanoid.manipulation.trace import PhysicsTrace  # noqa: E402
+ISAAC_TASK_IDS = {
+    "peg_insertion": "Isaac-Factory-PegInsert-Direct-v0",
+    "gear_meshing": "Isaac-Factory-GearMesh-Direct-v0",
+    "nut_threading": "Isaac-Factory-NutThread-Direct-v0",
+    "automate_assembly": "Isaac-AutoMate-Assembly-Direct-v0",
+}
 
 
 def parse_args():
+    from isaaclab.app import AppLauncher
+
     parser = argparse.ArgumentParser()
-    parser.add_argument("--task", choices=tuple(name for name, task in TASKS.items() if task.simulator == "isaaclab"), required=True)
+    parser.add_argument("--task", choices=tuple(ISAAC_TASK_IDS), required=True)
     parser.add_argument("--steps", type=int, default=12)
     parser.add_argument("--num-envs", type=int, default=1)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--assembly-id", default="00015", help="AutoMate default is upstream's 00015")
     parser.add_argument("--assembly-metadata", type=Path, help="JSON with verified geometry for a non-default AutoMate ID")
+    parser.add_argument("--automate-data-dir", type=Path, help="local AutoMate JSON cache (root metadata and ID subfolder)")
+    parser.add_argument("--factory-asset-dir", type=Path, help="local cache containing task Factory USD files")
     parser.add_argument("--video", action="store_true", help="record an RGB video at policy rate")
-    parser.add_argument("--headless", action="store_true")
-    parser.add_argument("--device", default="cuda:0")
+    AppLauncher.add_app_launcher_args(parser)
     args = parser.parse_args()
     if args.steps <= 0 or args.num_envs <= 0 or args.num_envs > 4:
         parser.error("steps must be positive and 1 <= num-envs <= 4")
-    if args.task != "automate_assembly" and (args.assembly_id != "00015" or args.assembly_metadata):
+    if args.task != "automate_assembly" and (args.assembly_id != "00015" or args.assembly_metadata or args.automate_data_dir):
         parser.error("AutoMate flags require --task automate_assembly")
+    if args.task == "automate_assembly" and args.factory_asset_dir:
+        parser.error("--factory-asset-dir is only valid for Factory tasks")
     if args.task == "automate_assembly" and args.assembly_id != "00015" and not args.assembly_metadata:
         parser.error("non-default assembly IDs require inspected --assembly-metadata")
-    return args
+    return args, AppLauncher
+
+
+# Isaac Lab requires the application to be launched before the remainder of
+# the simulator-facing module is initialized. Keep this block ahead of all
+# environment helper definitions, matching the upstream launch scripts.
+_RUNTIME_ARGS = None
+_RUNTIME_LAUNCHER = None
+if __name__ == "__main__":
+    _RUNTIME_ARGS, _AppLauncher = parse_args()
+    _RUNTIME_ARGS.enable_cameras = _RUNTIME_ARGS.video
+    _RUNTIME_LAUNCHER = _AppLauncher(_RUNTIME_ARGS)
 
 
 def configure_automate(cfg, assembly_id, metadata_path):
@@ -53,7 +75,7 @@ def configure_automate(cfg, assembly_id, metadata_path):
         raise ValueError(f"metadata must contain positive, verified values: {required}")
     from isaaclab_tasks.direct.automate.assembly_tasks_cfg import ASSET_DIR
 
-    task = cfg.task
+    task = cfg.tasks[cfg.task_name]
     task.assembly_id = assembly_id
     task.assembly_dir = f"{ASSET_DIR}/{assembly_id}/"
     task.disassembly_path_json = f"{task.assembly_dir}disassemble_traj.json"
@@ -69,6 +91,51 @@ def configure_automate(cfg, assembly_id, metadata_path):
     task.held_asset.spawn.mass_props.mass = task.held_asset_cfg.mass
     # Other task-specific geometry/reward parameters may also require adaptation.
     # This is an inspection run only; no training is permitted with this override.
+
+
+def configure_automate_data_cache(cfg, assembly_id, data_dir):
+    """Point AutoMate's auxiliary JSON reads at verified local copies."""
+    if data_dir is None:
+        return
+    data_dir = data_dir.resolve()
+    paths = {
+        "plug_grasp_json": data_dir / "plug_grasps.json",
+        "disassembly_dist_json": data_dir / "disassembly_dist.json",
+        "disassembly_path_json": data_dir / assembly_id / "disassemble_traj.json",
+    }
+    missing = [str(path) for path in paths.values() if not path.is_file()]
+    if missing:
+        raise FileNotFoundError(f"missing AutoMate cache files: {missing}")
+    runtime_dir = data_dir / "runtime" / assembly_id
+    runtime_dir.mkdir(parents=True, exist_ok=True)
+    task = cfg.tasks[cfg.task_name]
+    for field, path in paths.items():
+        target = runtime_dir / path.name
+        shutil.copy2(path, target)
+        setattr(task, field, str(target.resolve()))
+    # AutoMate v2.3.2 discards retrieve_file_path's return value and opens
+    # os.path.basename(...), so its three JSON files must be in the CWD.
+    os.chdir(runtime_dir)
+
+
+def configure_factory_asset_cache(cfg, task_name, asset_dir):
+    """Use verified local Factory USDs when remote cache entries are damaged."""
+    if asset_dir is None:
+        return
+    names = {
+        "nut_threading": ("factory_bolt_m16.usd", "factory_nut_m16.usd"),
+    }
+    if task_name not in names:
+        raise ValueError(f"no Factory cache mapping is defined for {task_name}")
+    asset_dir = asset_dir.resolve()
+    fixed_name, held_name = names[task_name]
+    fixed_path, held_path = asset_dir / fixed_name, asset_dir / held_name
+    missing = [str(path) for path in (fixed_path, held_path) if not path.is_file()]
+    if missing:
+        raise FileNotFoundError(f"missing Factory cache files: {missing}")
+    task = cfg.task
+    task.fixed_asset.spawn.usd_path = str(fixed_path)
+    task.held_asset.spawn.usd_path = str(held_path)
 
 
 def tensor_row(value, index=0):
@@ -92,7 +159,7 @@ def collision_counts():
 
     stage = omni.usd.get_context().get_stage()
     result = {}
-    for name in ("Robot", "FixedAsset", "HeldAsset"):
+    for name in ("Robot", "FixedAsset", "HeldAsset", "SmallGearAsset", "LargeGearAsset"):
         root = stage.GetPrimAtPath(f"/World/envs/env_0/{name}")
         if not root.IsValid():
             result[name] = None
@@ -149,26 +216,33 @@ def attach_physics_trace(raw, trace):
     return state, restore
 
 
-def main():
-    args = parse_args()
-    from isaaclab.app import AppLauncher
-    launcher = AppLauncher({"headless": args.headless, "enable_cameras": args.video, "device": args.device})
-    app = launcher.app
+def run_with_started_app(args, app):
     env = None
     restore = None
     try:
+        args.output = args.output.resolve()
         import gymnasium as gym
         import torch
         import isaaclab_tasks  # noqa: F401
         from isaaclab_tasks.utils import parse_env_cfg
 
-        task = TASKS[args.task]
-        spec = gym.spec(task.environment_id)
-        cfg = parse_env_cfg(task.environment_id, device=args.device, num_envs=args.num_envs)
+        task_id = ISAAC_TASK_IDS[args.task]
+        spec = gym.spec(task_id)
+        try:
+            cfg = parse_env_cfg(
+                task_id, device=args.device, num_envs=args.num_envs, use_fabric=True
+            )
+        except BaseException as exc:
+            raise RuntimeError(
+                f"environment configuration aborted with {type(exc).__name__}: {exc}"
+            ) from exc
         if args.task == "automate_assembly":
             configure_automate(cfg, args.assembly_id, args.assembly_metadata)
+            configure_automate_data_cache(cfg, args.assembly_id, args.automate_data_dir)
+        else:
+            configure_factory_asset_cache(cfg, args.task, args.factory_asset_dir)
         args.output.mkdir(parents=True, exist_ok=False)
-        env = gym.make(task.environment_id, cfg=cfg, render_mode="rgb_array" if args.video else None)
+        env = gym.make(task_id, cfg=cfg, render_mode="rgb_array" if args.video else None)
         raw = env.unwrapped
         if args.video:
             env = gym.wrappers.RecordVideo(env, video_folder=str(args.output / "videos"),
@@ -182,7 +256,7 @@ def main():
         if "held_asset" not in scene.articulations and "held_asset" not in scene.rigid_objects:
             raise AssertionError("held asset missing from scene")
         audit = {
-            "task": task.environment_id, "assembly_id": args.assembly_id if args.task == "automate_assembly" else None,
+            "task": task_id, "assembly_id": args.assembly_id if args.task == "automate_assembly" else None,
             "gym_entry_point": str(spec.entry_point), "scene_articulations": list(scene.articulations),
             "scene_rigid_objects": list(scene.rigid_objects), "robot_joint_names": list(raw._robot.data.joint_names),
             "robot_body_names": list(raw._robot.body_names),
@@ -199,8 +273,15 @@ def main():
             "ee_quaternion_order": "raw PhysX tensor order; verify against API before interpreting",
             "status": "reset_succeeded",
         }
+        trace_path = ROOT / "source" / "safe_humanoid" / "safe_humanoid" / "manipulation" / "trace.py"
+        trace_spec = importlib.util.spec_from_file_location("safe_humanoid_physics_trace", trace_path)
+        if trace_spec is None or trace_spec.loader is None:
+            raise RuntimeError(f"cannot load trace module: {trace_path}")
+        trace_module = importlib.util.module_from_spec(trace_spec)
+        trace_spec.loader.exec_module(trace_module)
+        PhysicsTrace = trace_module.PhysicsTrace
         trace_dir = args.output / "trace"
-        with PhysicsTrace(trace_dir, task=task.environment_id, simulator="isaaclab", dt_s=float(cfg.sim.dt),
+        with PhysicsTrace(trace_dir, task=task_id, simulator="isaaclab", dt_s=float(cfg.sim.dt),
                           joint_names=list(raw._robot.data.joint_names), signals={
                               "controller_torque": "upstream joint_torque effort target, not measured",
                               "actuator_torque": "Isaac Lab applied_torque buffer if exposed; verify against controller command",
@@ -228,6 +309,11 @@ def main():
             audit["status"] = "reset_and_short_step_succeeded"
         (args.output / "audit.json").write_text(json.dumps(audit, indent=2) + "\n")
         print(json.dumps(audit, indent=2))
+    except BaseException:
+        # Isaac SimulationApp.close() can terminate the process, so emit the
+        # original error before cleanup rather than relying on an outer catch.
+        traceback.print_exc()
+        raise
     finally:
         if restore:
             restore()
@@ -238,7 +324,7 @@ def main():
 
 if __name__ == "__main__":
     try:
-        main()
+        run_with_started_app(_RUNTIME_ARGS, _RUNTIME_LAUNCHER.app)
     except Exception:
         traceback.print_exc()
         raise

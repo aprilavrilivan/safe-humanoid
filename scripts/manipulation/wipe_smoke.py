@@ -48,12 +48,31 @@ def sensor_value(data, spec):
     return None if spec is None else data.sensordata[spec[1]:spec[1]+spec[2]].tolist()
 
 
+def tool_table_normal_force(mujoco, model, data, tool_geom_ids, table_geom_id):
+    """Sum normal contact loads on the wiping tool against the tabletop, in N."""
+    import numpy as np
+
+    force = 0.0
+    pairs = 0
+    wrench = np.zeros(6, dtype=float)
+    for contact_id in range(data.ncon):
+        contact = data.contact[contact_id]
+        geoms = {int(contact.geom1), int(contact.geom2)}
+        if table_geom_id not in geoms or not (geoms & tool_geom_ids):
+            continue
+        mujoco.mj_contactForce(model._model, data._data, contact_id, wrench)
+        force += abs(float(wrench[0]))
+        pairs += 1
+    return force, pairs
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--steps", type=int, default=12)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--headless", action="store_true")
     parser.add_argument("--video", action="store_true", help="save a short offscreen frontview video")
+    parser.add_argument("--probe-contact", action="store_true", help="gently lower the wiper to test tabletop contact")
     args = parser.parse_args()
     if args.steps <= 0:
         parser.error("steps must be positive")
@@ -77,6 +96,9 @@ def main():
         ctrl_idx = robot._ref_arm_joint_actuator_indexes
         force_spec = find_sensor(model, "force_ee")
         torque_spec = find_sensor(model, "torque_ee")
+        tool_geom_ids = {model.geom_name2id(name) for name in robot.gripper[arm].contact_geoms}
+        table_geom_id = model.geom_name2id("table_collision")
+        contact_pairs_seen = [0]
         audit = {
             "task": "Wipe", "simulator": "robosuite/MuJoCo", "robot": "Panda", "gripper": "WipingGripper",
             "robosuite_version": getattr(robosuite, "__version__", "unknown"),
@@ -92,7 +114,8 @@ def main():
             "measured_effort": "not a real motor measurement",
             "ee_force_sensor": None if force_spec is None else force_spec[0],
             "ee_torque_sensor": None if torque_spec is None else torque_spec[0],
-            "contact_force": "wrist force/torque is not isolated tool-surface contact; contact_force remains null",
+            "contact_force": "sum of tool-table contact normal loads from mj_contactForce, in N; one-element vector",
+            "contact_geometries": {"tool_count": len(tool_geom_ids), "table": "table_collision"},
             "status": "reset_succeeded",
         }
         frames = []
@@ -106,14 +129,20 @@ def main():
                           signals={"controller_torque": "MuJoCo actuator input (data.ctrl); units depend on actuator gear",
                                    "actuator_torque": "MuJoCo data.qfrc_actuator; actual simulated generalized actuator force",
                                    "contact_wrench": "wrist force/torque sensors, not isolated contact",
-                                   "contact_force": "unavailable without geometry-specific contact aggregation"}) as trace:
+                                   "contact_force": "tool-table normal contact load in N from MuJoCo contacts"}) as trace:
             def capture():
                 if not active["value"]:
                     return
                 speed = np.zeros(6)
-                mujoco.mj_objectVelocity(model, data, mujoco.mjtObj.mjOBJ_SITE, site_id, speed, 0)
+                # robosuite wraps MuJoCo's model/data for its legacy-compatible API;
+                # native MuJoCo functions require the underlying objects.
+                mujoco.mj_objectVelocity(model._model, data._data, mujoco.mjtObj.mjOBJ_SITE, site_id, speed, 0)
                 force = sensor_value(data, force_spec)
                 torque = sensor_value(data, torque_spec)
+                normal_force, pairs = tool_table_normal_force(
+                    mujoco, model, data, tool_geom_ids, table_geom_id
+                )
+                contact_pairs_seen[0] += pairs
                 trace.record(sim_time_s=float(data.time), policy_step=active["policy_step"],
                              joint_position=data.qpos[qpos_idx].tolist(),
                              joint_velocity=data.qvel[qvel_idx].tolist(),
@@ -122,13 +151,17 @@ def main():
                              ee_position=data.site_xpos[site_id].tolist(),
                              ee_orientation=data.site_xmat[site_id].reshape(-1).tolist(),
                              ee_linear_velocity=speed[3:6], ee_angular_velocity=speed[:3],
+                             contact_force=[normal_force],
                              contact_wrench=(force + torque) if force is not None and torque is not None else None)
 
             env.sim = StepProxy(original_sim, capture)
             for index in range(args.steps):
                 active["policy_step"] = index + 1
                 active["value"] = True
-                observation, reward, done, info = env.step(np.zeros(env.action_dim))
+                action = np.zeros(env.action_dim)
+                if args.probe_contact:
+                    action[2] = -0.2
+                observation, reward, done, info = env.step(action)
                 active["value"] = False
                 events.append({"policy_step": index + 1, "reward": float(reward), "done": bool(done),
                                "success": len(env.wiped_markers) == env.num_markers,
@@ -139,6 +172,7 @@ def main():
                     break
             audit["physics_samples"] = trace.step
             audit["expected_physics_samples"] = len(events) * audit["decimation"]
+            audit["tool_table_contact_pairs_seen"] = contact_pairs_seen[0]
             if trace.step != audit["expected_physics_samples"]:
                 raise AssertionError("missing or extra MuJoCo physics substeps")
             audit["status"] = "reset_and_short_step_succeeded"

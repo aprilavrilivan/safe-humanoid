@@ -1,0 +1,71 @@
+{
+  "task": "Isaac-Factory-GearMesh-Direct-v0",
+  "assembly_id": null,
+  "gym_entry_point": "isaaclab_tasks.direct.factory.factory_env:FactoryEnv",
+  "scene_articulations": [
+    "robot",
+    "fixed_asset",
+    "held_asset",
+    "small_gear",
+    "large_gear"
+  ],
+  "scene_rigid_objects": [],
+  "robot_joint_names": [
+    "panda_joint1",
+    "panda_joint2",
+    "panda_joint3",
+    "panda_joint4",
+    "panda_joint5",
+    "panda_joint6",
+    "panda_joint7",
+    "panda_finger_joint1",
+    "panda_finger_joint2"
+  ],
+  "robot_body_names": [
+    "panda_link0",
+    "panda_link1",
+    "panda_link2",
+    "panda_link3",
+    "panda_link4",
+    "panda_link5",
+    "panda_link6",
+    "panda_link7",
+    "force_sensor",
+    "panda_hand",
+    "panda_leftfinger",
+    "panda_rightfinger",
+    "panda_fingertip_centered"
+  ],
+  "collision_prim_counts": {
+    "Robot": 12,
+    "FixedAsset": 1,
+    "HeldAsset": 1,
+    "SmallGearAsset": 1,
+    "LargeGearAsset": 1
+  },
+  "trace_scope": "environment 0 only; events contain all requested environments",
+  "physics_dt_s": 0.008333333333333333,
+  "physics_hz": 120.0,
+  "decimation": 8,
+  "policy_hz": 15.0,
+  "action_space": "Box(-inf, inf, (1, 6), float32)",
+  "observation_space": "Box(-inf, inf, (1, 19), float32)",
+  "reset_observation_shapes": {
+    "policy": [
+      1,
+      19
+    ],
+    "critic": [
+      1,
+      43
+    ]
+  },
+  "controller_cfg": "CtrlCfg(ema_factor=0.2, pos_action_bounds=[0.05, 0.05, 0.05], rot_action_bounds=[1.0, 1.0, 1.0], pos_action_threshold=[0.02, 0.02, 0.02], rot_action_threshold=[0.097, 0.097, 0.097], reset_joints=[0.0015178, -0.19651, -0.0014364, -1.9761, -0.00027717, 1.7796, 0.78556], reset_task_prop_gains=[300, 300, 300, 20, 20, 20], reset_rot_deriv_scale=10.0, default_task_prop_gains=[100, 100, 100, 30, 30, 30], default_dof_pos_tensor=[-1.3003, -0.4015, 1.1791, -2.1493, 0.4001, 1.9425, 0.4754], kp_null=10.0, kd_null=6.3246)",
+  "action_semantics": "6D end-effector delta pose; controller computes 7 arm torques; gripper position target",
+  "torque_semantics": "controller_torque = upstream joint_torque effort target; actuator_torque = Isaac Lab applied_torque buffer if exposed (verify mapping/timing); measured motor torque unavailable",
+  "contact_semantics": "not exposed by this original Factory/AutoMate task; controller applied_wrench is NOT contact force",
+  "ee_quaternion_order": "raw PhysX tensor order; verify against API before interpreting",
+  "status": "reset_and_short_step_succeeded",
+  "physics_samples": 32,
+  "expected_physics_samples": 32
+}

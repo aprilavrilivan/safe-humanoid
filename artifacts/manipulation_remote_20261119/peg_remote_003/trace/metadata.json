@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "task": "Isaac-Factory-PegInsert-Direct-v0",
+  "simulator": "isaaclab",
+  "physics_dt_s": 0.008333333333333333,
+  "physics_frequency_hz": 120.0,
+  "joint_names": [
+    "panda_joint1",
+    "panda_joint2",
+    "panda_joint3",
+    "panda_joint4",
+    "panda_joint5",
+    "panda_joint6",
+    "panda_joint7",
+    "panda_finger_joint1",
+    "panda_finger_joint2"
+  ],
+  "signals": {
+    "controller_torque": "upstream joint_torque effort target, not measured",
+    "actuator_torque": "Isaac Lab applied_torque buffer if exposed; verify against controller command",
+    "measured_effort": "unavailable; null",
+    "contact_force": "unavailable without sensor; null"
+  },
+  "note": "Every row is a physics step, not a policy transition; null means unavailable."
+}

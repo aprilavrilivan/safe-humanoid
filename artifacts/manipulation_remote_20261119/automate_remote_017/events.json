@@ -1,0 +1,30 @@
+[
+  {
+    "policy_step": 1,
+    "reward": 4.554851055145264,
+    "terminated": false,
+    "truncated": false,
+    "success": false
+  },
+  {
+    "policy_step": 2,
+    "reward": 4.554897308349609,
+    "terminated": false,
+    "truncated": false,
+    "success": false
+  },
+  {
+    "policy_step": 3,
+    "reward": 4.554866790771484,
+    "terminated": false,
+    "truncated": false,
+    "success": false
+  },
+  {
+    "policy_step": 4,
+    "reward": 4.554862022399902,
+    "terminated": false,
+    "truncated": false,
+    "success": false
+  }
+]
